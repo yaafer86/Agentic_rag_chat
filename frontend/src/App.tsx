@@ -1,12 +1,40 @@
+import { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useAuthStore } from "@/store/auth";
+import { AppShell } from "@/components/AppShell";
+import { LoginPage } from "@/features/auth/LoginPage";
+import { ChatPage } from "@/features/chat/ChatPage";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, refetchOnWindowFocus: false },
+  },
+});
+
+function Gate() {
+  const { user, loading, hydrate } = useAuthStore();
+  useEffect(() => {
+    void hydrate();
+  }, [hydrate]);
+  if (loading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background text-foreground">
+        <span className="text-sm text-muted-foreground">Loading…</span>
+      </main>
+    );
+  }
+  if (!user) return <LoginPage />;
+  return (
+    <AppShell>
+      <ChatPage />
+    </AppShell>
+  );
+}
+
 export default function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center p-8">
-      <div className="max-w-xl text-center">
-        <h1 className="text-3xl font-semibold">Agentic RAG — bootstrapping</h1>
-        <p className="mt-4 text-muted-foreground">
-          Skeleton scaffold. Features land phase by phase per the roadmap in the top-level README.
-        </p>
-      </div>
-    </main>
+    <QueryClientProvider client={queryClient}>
+      <Gate />
+    </QueryClientProvider>
   );
 }
