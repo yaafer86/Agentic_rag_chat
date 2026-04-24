@@ -38,7 +38,9 @@ async def healthz() -> dict[str, str]:
 
 # Routers
 from app.api import auth as _auth  # noqa: E402
+from app.api import upload as _upload  # noqa: E402
 from app.api import workspaces as _workspaces  # noqa: E402
 
 app.include_router(_auth.router)
 app.include_router(_workspaces.router)
+app.include_router(_upload.router)
