@@ -1,0 +1,66 @@
+# Web framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-multipart==0.0.19
+
+# Validation / settings
+pydantic==2.10.3
+pydantic-settings==2.6.1
+
+# Database / ORM
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+alembic==1.14.0
+
+# Auth / crypto
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+casbin==1.36.3
+casbin-sqlalchemy-adapter==1.4.0
+
+# Data stores
+qdrant-client==1.12.1
+neo4j==5.27.0
+minio==7.2.12
+redis==5.2.1
+
+# LLM / agents
+litellm==1.55.3
+langgraph==0.2.59
+langchain-core==0.3.25
+openai==1.58.1
+anthropic==0.42.0
+ollama==0.4.4
+
+# Ingestion / OCR / VLM
+python-doctr[torch]==0.10.0
+pypdf==5.1.0
+Pillow==11.0.0
+
+# Office / export
+python-docx==1.1.2
+openpyxl==3.1.5
+python-pptx==1.0.2
+reportlab==4.2.5
+
+# Data / compute
+pandas==2.2.3
+numpy==2.2.0
+matplotlib==3.9.3
+plotly==5.24.1
+
+# Utilities
+httpx==0.28.1
+tenacity==9.0.0
+structlog==24.4.0
+orjson==3.10.12
+
+# Observability
+prometheus-fastapi-instrumentator==7.0.0
+sentry-sdk[fastapi]==2.19.2
+
+# Dev tooling
+pytest==8.3.4
+pytest-asyncio==0.25.0
+ruff==0.8.4
+mypy==1.13.0

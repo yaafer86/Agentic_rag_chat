@@ -1,0 +1,12 @@
+# Libraries baked into the Microsandbox image only.
+# Kept minimal: no network libs, no auth libs, no DB drivers.
+
+pandas==2.2.3
+numpy==2.2.0
+matplotlib==3.9.3
+plotly==5.24.1
+python-docx==1.1.2
+openpyxl==3.1.5
+python-pptx==1.0.2
+reportlab==4.2.5
+Pillow==11.0.0
