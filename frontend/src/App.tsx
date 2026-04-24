@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store/auth";
 import { AppShell } from "@/components/AppShell";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { ChatPage } from "@/features/chat/ChatPage";
+import { KGPage } from "@/features/kg/KGPage";
 import { SandboxPage } from "@/features/sandbox/SandboxPage";
 
 const queryClient = new QueryClient({
@@ -12,12 +13,13 @@ const queryClient = new QueryClient({
   },
 });
 
-type Tab = "chat" | "sandbox";
+type Tab = "chat" | "sandbox" | "kg";
 
 function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
   const items: { id: Tab; label: string }[] = [
     { id: "chat", label: "Chat" },
     { id: "sandbox", label: "Sandbox" },
+    { id: "kg", label: "Knowledge" },
   ];
   return (
     <nav className="flex gap-1 border-b border-border bg-background px-4">
@@ -58,7 +60,9 @@ function Gate() {
       <div className="flex h-full flex-col">
         <Tabs tab={tab} onChange={setTab} />
         <div className="flex-1 overflow-hidden">
-          {tab === "chat" ? <ChatPage /> : <SandboxPage />}
+          {tab === "chat" && <ChatPage />}
+          {tab === "sandbox" && <SandboxPage />}
+          {tab === "kg" && <KGPage />}
         </div>
       </div>
     </AppShell>
