@@ -37,9 +37,12 @@ async def healthz() -> dict[str, str]:
 
 
 # Routers
+from app.api import admin as _admin  # noqa: E402
 from app.api import auth as _auth  # noqa: E402
 from app.api import chat as _chat  # noqa: E402
+from app.api import dashboard as _dashboard  # noqa: E402
 from app.api import kg as _kg  # noqa: E402
+from app.api import kpi as _kpi  # noqa: E402
 from app.api import sandbox as _sandbox  # noqa: E402
 from app.api import upload as _upload  # noqa: E402
 from app.api import workspaces as _workspaces  # noqa: E402
@@ -50,3 +53,6 @@ app.include_router(_upload.router)
 app.include_router(_chat.router)
 app.include_router(_sandbox.router)
 app.include_router(_kg.router)
+app.include_router(_kpi.router)
+app.include_router(_dashboard.router)
+app.include_router(_admin.router)

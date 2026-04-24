@@ -6,6 +6,8 @@ import { LoginPage } from "@/features/auth/LoginPage";
 import { ChatPage } from "@/features/chat/ChatPage";
 import { KGPage } from "@/features/kg/KGPage";
 import { SandboxPage } from "@/features/sandbox/SandboxPage";
+import { DashboardPage } from "@/features/dashboard/DashboardPage";
+import { AdminPage } from "@/features/admin/AdminPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,13 +15,23 @@ const queryClient = new QueryClient({
   },
 });
 
-type Tab = "chat" | "sandbox" | "kg";
+type Tab = "chat" | "sandbox" | "kg" | "dashboard" | "admin";
 
-function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
+function Tabs({
+  tab,
+  onChange,
+  showAdmin,
+}: {
+  tab: Tab;
+  onChange: (t: Tab) => void;
+  showAdmin: boolean;
+}) {
   const items: { id: Tab; label: string }[] = [
     { id: "chat", label: "Chat" },
     { id: "sandbox", label: "Sandbox" },
     { id: "kg", label: "Knowledge" },
+    { id: "dashboard", label: "Dashboards" },
+    ...(showAdmin ? [{ id: "admin" as Tab, label: "Admin" }] : []),
   ];
   return (
     <nav className="flex gap-1 border-b border-border bg-background px-4">
@@ -58,11 +70,13 @@ function Gate() {
   return (
     <AppShell>
       <div className="flex h-full flex-col">
-        <Tabs tab={tab} onChange={setTab} />
+        <Tabs tab={tab} onChange={setTab} showAdmin={user.is_global_admin} />
         <div className="flex-1 overflow-hidden">
           {tab === "chat" && <ChatPage />}
           {tab === "sandbox" && <SandboxPage />}
           {tab === "kg" && <KGPage />}
+          {tab === "dashboard" && <DashboardPage />}
+          {tab === "admin" && <AdminPage />}
         </div>
       </div>
     </AppShell>
