@@ -17,6 +17,14 @@ os.environ["JWT_SECRET"] = "test-secret-change-in-prod-but-long-enough"
 os.environ["APP_BASE_URL"] = "http://testserver"
 
 
+def _run_sync(coro) -> None:
+    loop = asyncio.new_event_loop()
+    try:
+        loop.run_until_complete(coro)
+    finally:
+        loop.close()
+
+
 @pytest.fixture()
 def client():
     from fastapi.testclient import TestClient
@@ -29,7 +37,7 @@ def client():
             await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
 
-    asyncio.get_event_loop().run_until_complete(_reset())
+    _run_sync(_reset())
 
     with TestClient(app) as c:
         yield c

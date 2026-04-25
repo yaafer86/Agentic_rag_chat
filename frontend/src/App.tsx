@@ -7,6 +7,7 @@ import { ChatPage } from "@/features/chat/ChatPage";
 import { KGPage } from "@/features/kg/KGPage";
 import { SandboxPage } from "@/features/sandbox/SandboxPage";
 import { DashboardPage } from "@/features/dashboard/DashboardPage";
+import { SettingsPage } from "@/features/settings/SettingsPage";
 import { AdminPage } from "@/features/admin/AdminPage";
 
 const queryClient = new QueryClient({
@@ -15,7 +16,7 @@ const queryClient = new QueryClient({
   },
 });
 
-type Tab = "chat" | "sandbox" | "kg" | "dashboard" | "admin";
+type Tab = "chat" | "sandbox" | "kg" | "dashboard" | "settings" | "admin";
 
 function Tabs({
   tab,
@@ -31,6 +32,7 @@ function Tabs({
     { id: "sandbox", label: "Sandbox" },
     { id: "kg", label: "Knowledge" },
     { id: "dashboard", label: "Dashboards" },
+    { id: "settings", label: "Settings" },
     ...(showAdmin ? [{ id: "admin" as Tab, label: "Admin" }] : []),
   ];
   return (
@@ -76,6 +78,7 @@ function Gate() {
           {tab === "sandbox" && <SandboxPage />}
           {tab === "kg" && <KGPage />}
           {tab === "dashboard" && <DashboardPage />}
+          {tab === "settings" && <SettingsPage />}
           {tab === "admin" && <AdminPage />}
         </div>
       </div>

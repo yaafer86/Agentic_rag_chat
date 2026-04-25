@@ -11,10 +11,12 @@ from app.core.config import get_settings
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    # Dev convenience: create tables if missing. Production uses Alembic migrations.
-    from app.core.db import init_db
+    # On SQLite (dev / tests) bootstrap the schema with create_all. On Postgres,
+    # expect Alembic migrations to have been applied: `alembic upgrade head`.
+    from app.core.db import engine, init_db
 
-    await init_db()
+    if engine.dialect.name == "sqlite":
+        await init_db()
     yield
 
 
@@ -43,6 +45,7 @@ from app.api import chat as _chat  # noqa: E402
 from app.api import dashboard as _dashboard  # noqa: E402
 from app.api import kg as _kg  # noqa: E402
 from app.api import kpi as _kpi  # noqa: E402
+from app.api import providers as _providers  # noqa: E402
 from app.api import sandbox as _sandbox  # noqa: E402
 from app.api import upload as _upload  # noqa: E402
 from app.api import workspaces as _workspaces  # noqa: E402
@@ -56,3 +59,4 @@ app.include_router(_kg.router)
 app.include_router(_kpi.router)
 app.include_router(_dashboard.router)
 app.include_router(_admin.router)
+app.include_router(_providers.router)
