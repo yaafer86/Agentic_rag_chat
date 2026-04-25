@@ -97,7 +97,11 @@ def test_quota_enforced(client) -> None:
             await db.execute(update(Workspace).where(Workspace.id == ws_id).values(quota_bytes=5))
             await db.commit()
 
-    asyncio.get_event_loop().run_until_complete(_shrink())
+    loop = asyncio.new_event_loop()
+    try:
+        loop.run_until_complete(_shrink())
+    finally:
+        loop.close()
 
     r = client.post(
         "/api/upload",
