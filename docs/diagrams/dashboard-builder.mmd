@@ -1,0 +1,20 @@
+flowchart LR
+    Pick[Select dashboard<br/>or click + New] --> Layout[Center pane:<br/>render layout.widgets]
+    Pick --> KPIs[Right pane:<br/>list KPIs + create form]
+
+    KPIs --> Add{Click 'add to dashboard'}
+    Add --> AppendW["append widget<br/>{id, type, kpi_id, title}"]
+    AppendW --> Put[PUT /api/dashboards/:id<br/>updated layout]
+    Put --> Render[invalidate query → re-render]
+
+    Layout --> Remove{Click × on widget}
+    Remove --> Filter[filter widgets by id]
+    Filter --> Put
+
+    Layout --> Rename[Edit name inline]
+    Rename --> Put
+
+    Layout --> Delete[Click delete]
+    Delete --> Confirm{confirm?}
+    Confirm -- yes --> Del[DELETE /api/dashboards/:id]
+    Del --> Render

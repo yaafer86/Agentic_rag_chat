@@ -1,0 +1,24 @@
+flowchart TD
+    Start([User opens app]) --> Hyd[Auth store hydrate]
+    Hyd --> Tok{access_token in<br/>localStorage?}
+    Tok -- yes --> Me[GET /api/auth/me]
+    Me --> MeOk{200?}
+    MeOk -- yes --> Auth[render AppShell]
+    MeOk -- no --> Refresh{401 + has refresh?}
+    Refresh -- yes --> Rfr[POST /api/auth/refresh]
+    Rfr --> RfrOk{200?}
+    RfrOk -- yes --> Store[store new tokens] --> Me
+    RfrOk -- no --> Clear[clear tokens] --> Login
+    Refresh -- no --> Login
+    Tok -- no --> Login[render LoginPage]
+
+    Login --> Mode{mode}
+    Mode -- login --> POSTLog[POST /api/auth/login]
+    Mode -- register --> POSTReg[POST /api/auth/register]
+    POSTReg --> First{first user?}
+    First -- yes --> Promote[promote to global_admin]
+    First -- no --> Reg[regular user]
+    Promote --> POSTLog
+    Reg --> POSTLog
+    POSTLog --> Issue[issue access + refresh<br/>both with jti nonce]
+    Issue --> Auth

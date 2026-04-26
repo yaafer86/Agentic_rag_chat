@@ -1,0 +1,11 @@
+flowchart LR
+    A[API request] --> B{model_override<br/>in payload?}
+    B -- yes --> Use[Use override]
+    B -- no --> C{workspace.model_prefs<br/>has the field?}
+    C -- yes --> Use2[Use workspace pref]
+    C -- no --> D{default_fallback<br/>passed by caller?}
+    D -- yes --> Use3[Use default]
+    D -- no --> Err["Raise:<br/>no kind configured"]
+    Use --> Litellm[litellm.acompletion<br/>fallbacks=workspace.fallback_chain]
+    Use2 --> Litellm
+    Use3 --> Litellm

@@ -1,0 +1,23 @@
+flowchart TD
+    Trigger[KG extraction trigger] --> Pas[Passage from chunk or document]
+    Pas --> Call[acomplete @ T=0.1<br/>strict JSON system prompt]
+    Call --> Parse[parse_extraction]
+    Parse --> Strict[Pydantic strict validate<br/>KGExtraction]
+    Strict -- fail --> Drop[log + drop]
+    Strict -- pass --> Slug[slugify entity ids]
+    Slug --> Clamp{relation in<br/>RELATION_ALLOWLIST?}
+    Clamp -- no --> Default[clamp to RELATED_TO]
+    Clamp -- yes --> Keep[keep type]
+    Default --> Merge
+    Keep --> Merge[merge_into_graph]
+    Merge --> Upsert[MERGE Entity by id<br/>SET workspace_id, kind, props]
+    Upsert --> Rel[MATCH+MERGE relation<br/>type from allowlist only]
+
+    subgraph Read["Read paths"]
+        Tline[GET /api/kg/timeline] --> CTLine["MATCH (ev:Event)<br/>WHERE workspace_id = $ws"]
+        Themes[GET /api/kg/themes] --> CThemes["MATCH (ev:Event {ws})<br/>WITH ev.theme, count(*)"]
+        Network[GET /api/kg/entity/:id/network] --> CNet["MATCH (e:Entity {id, ws})<br/>+ neighbors[*1..N]"]
+        CTLine --> Render[Frontend KGPage]
+        CThemes --> Render
+        CNet --> Render
+    end

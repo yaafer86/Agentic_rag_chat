@@ -1,0 +1,27 @@
+flowchart TD
+    Load[Open Settings tab] --> WSQ[GET /api/workspaces/:id]
+    WSQ --> Hydrate[populate form from<br/>workspace.model_prefs]
+    Load --> ProvQ[GET /api/providers/models]
+    ProvQ --> Probe{probe each provider}
+    Probe --> Ollama["Ollama: GET /api/tags"]
+    Probe --> LMStudio["LMStudio: GET /v1/models"]
+    Probe --> OpenAI["OpenAI: GET /v1/models"]
+    Probe --> OpenRouter["OpenRouter: GET /api/v1/models"]
+    Probe --> Anthropic[Anthropic: curated list<br/>if key set]
+
+    Ollama --> Combine[combine into<br/>all_models sorted]
+    LMStudio --> Combine
+    OpenAI --> Combine
+    OpenRouter --> Combine
+    Anthropic --> Combine
+    Combine --> Datalist[populate &lt;datalist&gt;<br/>per model field]
+
+    User[User picks model] --> Test{Click Test?}
+    Test -- yes --> POST[POST /api/providers/test-model]
+    POST --> Resolve[ResolvedModel + acomplete<br/>max_tokens=16, prompt='ping']
+    Resolve --> Render[render latency + sample<br/>or error string]
+
+    User --> Save{Click Save preferences}
+    Save --> PUT[PUT /api/workspaces/:id/model-prefs]
+    PUT --> Audit[INSERT AuditLog<br/>workspace.set_model_prefs]
+    PUT --> Inval[invalidate workspace query]

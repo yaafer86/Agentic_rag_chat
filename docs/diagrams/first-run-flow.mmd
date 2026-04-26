@@ -1,0 +1,13 @@
+flowchart LR
+    A[Open http://localhost:3000] --> B[Click 'Need an account? Register']
+    B --> C[Submit email + password]
+    C --> D{First user?}
+    D -- yes --> E[Auto-promoted to global_admin]
+    D -- no --> F[Regular user]
+    E --> G[Create a workspace<br/>name + slug]
+    F --> G
+    G --> H[Settings tab]
+    H --> I[Pick rag_model, embedding_model, vlm_model<br/>from the live datalist]
+    I --> J[Click 'Test' on each row]
+    J --> K[Save preferences]
+    K --> L[Chat tab — ask anything]

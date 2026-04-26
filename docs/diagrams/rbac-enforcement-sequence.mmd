@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    participant Req as Request
+    participant Mid as FastAPI router
+    participant Auth as get_current_user
+    participant WS as get_workspace
+    participant RR as require_role / require_global_admin
+    participant ACL as check_folder_acl
+    participant H as Handler
+    participant DB as Postgres
+    Req->>Mid: HTTP
+    Mid->>Auth: dep
+    Auth->>DB: SELECT user
+    DB-->>Auth: user row
+    Auth-->>Mid: User
+    Mid->>WS: dep (if scoped)
+    WS->>DB: SELECT membership
+    DB-->>WS: row or null
+    alt outsider + not global_admin
+        WS-->>Req: 403
+    end
+    Mid->>RR: dep (if role-gated)
+    alt role insufficient
+        RR-->>Req: 403
+    end
+    Mid->>H: invoke
+    opt folder-scoped op
+        H->>ACL: check_folder_acl(folder.acl, user.id, member.role, action)
+        alt no match
+            H-->>Req: 403
+        end
+    end
+    H->>DB: business logic (RLS engaged)
+    DB-->>H: rows scoped by app.current_workspace
+    H-->>Req: 200

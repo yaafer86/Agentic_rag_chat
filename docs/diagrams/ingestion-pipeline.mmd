@@ -1,0 +1,42 @@
+flowchart TD
+    U[User picks file] --> POST[POST /api/upload<br/>multipart]
+    POST --> Empty{size==0?}
+    Empty -- yes --> R400[400 empty file]
+    Empty -- no --> Big{size > 100MB?}
+    Big -- yes --> R413[413 too large]
+    Big -- no --> Quota{used+size > quota?}
+    Quota -- yes --> R402[402 quota exceeded]
+    Quota -- no --> InsRow[Insert Document<br/>status=pending]
+    InsRow --> Put[MinIO put_object]
+    Put --> PutOk{ok?}
+    PutOk -- no --> StoreFail[record storage_error<br/>continue with metadata]
+    PutOk -- yes --> AuditL[Audit log]
+    StoreFail --> AuditL
+    AuditL --> BG[Schedule background<br/>ingest_bytes]
+    AuditL --> R201[201 DocumentOut]
+
+    BG --> Parse[parsers.parse → ParsedUnits]
+    Parse --> Loop{for each unit}
+    Loop -- text --> Chunk[chunk_text<br/>~500 tokens, overlap 50]
+    Loop -- image --> ResolveVLM{vlm_model<br/>configured?}
+    ResolveVLM -- no --> Skip[skip VLM, OCR-only]
+    ResolveVLM -- yes --> CallVLM[acomplete @ T=0.2<br/>JSON-only system prompt]
+    CallVLM --> Validate[Pydantic strict validate<br/>PageExtraction]
+    Validate -- valid --> Conf{confidence ≥<br/>OCR_FALLBACK_THRESHOLD?}
+    Validate -- invalid --> Retry{retries left?}
+    Retry -- yes --> CallVLM
+    Retry -- no --> OCR
+    Conf -- yes --> Blocks[blocks → text]
+    Conf -- no --> OCR[Doctr OCR fallback]
+    Skip --> OCR
+    OCR --> Confidences[avg word confidence]
+    Blocks --> Chunk
+    Confidences --> Chunk
+    Chunk --> Embed[embed_texts<br/>batched 64]
+    Embed --> Upsert[Qdrant upsert<br/>workspace_id payload]
+    Upsert --> Update[Document.status=indexed<br/>confidence=avg]
+    Update --> Done([end])
+
+    R400 -.-> Done
+    R413 -.-> Done
+    R402 -.-> Done

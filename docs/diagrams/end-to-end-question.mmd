@@ -1,0 +1,14 @@
+flowchart TD
+    A[User types message] --> B{First strong char<br/>RTL range?}
+    B -- yes --> C[Composer dir='rtl'<br/>logical CSS flips]
+    B -- no --> D[Composer dir='ltr']
+    C --> E[Click Send]
+    D --> E
+    E --> F[openChatStream<br/>fetch SSE]
+    F --> G[run_rag yields events]
+    G --> H[ThinkingStream panel<br/>updates per event]
+    G --> I[Assistant bubble<br/>per-message RTL detection]
+    H --> J["Done event<br/>sources S1, S2 rendered"]
+    I --> J
+    J --> K[Persist conversation]
+    K --> L([User sees answer])

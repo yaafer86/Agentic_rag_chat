@@ -1,0 +1,69 @@
+flowchart TB
+    subgraph Client["Browser (Vite + React 18)"]
+        UI[App Shell + Tabs]
+        UI --> ChatUI[Chat<br/>RTL detect · thinking stream]
+        UI --> SandboxUI[Sandbox<br/>code editor + plots]
+        UI --> KGUI[Knowledge<br/>timeline + themes]
+        UI --> DashUI[Dashboards<br/>builder]
+        UI --> SettingsUI[Settings<br/>model prefs]
+        UI --> AdminUI[Admin<br/>users + audit]
+    end
+
+    Client -- HTTPS / SSE --> API[FastAPI Gateway<br/>JWT · CORS · RBAC deps]
+
+    subgraph Backend["Backend services"]
+        API --> Auth[/api/auth/]
+        API --> WS[/api/workspaces/]
+        API --> Upload[/api/upload/]
+        API --> Chat[/api/chat<br/>RAG agent + SSE/]
+        API --> Sandbox[/api/sandbox/run/]
+        API --> KG[/api/kg/]
+        API --> KPI[/api/kpi/]
+        API --> Dash[/api/dashboards/]
+        API --> Adm[/api/admin/]
+        API --> Prov[/api/providers/]
+    end
+
+    subgraph Stores["Data stores"]
+        PG[(PostgreSQL<br/>users · workspaces<br/>RLS policies)]
+        QD[(Qdrant<br/>vectors + metadata<br/>workspace filter)]
+        N4[(Neo4j<br/>entities · relations<br/>composite indexes)]
+        S3[(MinIO<br/>files · artifacts)]
+    end
+
+    subgraph Compute["Compute"]
+        SBX[Microsandbox<br/>cap_drop=ALL · no-net]
+        LLM[LiteLLM router<br/>fallback chain]
+    end
+
+    subgraph Providers["LLM providers (any subset)"]
+        OAI[OpenAI]
+        ANT[Anthropic]
+        OR[OpenRouter]
+        OL[Ollama local]
+        LMS[LMStudio local]
+    end
+
+    Auth --> PG
+    WS --> PG
+    Upload --> PG
+    Upload --> S3
+    Upload --> QD
+    Chat --> QD
+    Chat --> N4
+    Chat --> LLM
+    Sandbox --> SBX
+    KG --> N4
+    KPI --> PG
+    Dash --> PG
+    Adm --> PG
+    Prov --> OAI
+    Prov --> ANT
+    Prov --> OR
+    Prov --> OL
+    Prov --> LMS
+    LLM --> OAI
+    LLM --> ANT
+    LLM --> OR
+    LLM --> OL
+    LLM --> LMS

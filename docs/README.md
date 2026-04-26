@@ -5,8 +5,9 @@
 | [`INSTALL.md`](./INSTALL.md) | Operators / new contributors | Step-by-step from zero: prerequisites, infra (Docker compose), backend venv + Alembic + uvicorn, frontend npm + dev/build, first-run onboarding flow, production deployment notes, troubleshooting matrix |
 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | Engineers / reviewers | Service topology, data ownership matrix, RBAC decision tree, request lifecycle (read + write paths), security envelope, model-resolution chain, dark-light + RTL contract |
 | [`FLOWS.md`](./FLOWS.md) | Engineers / product | Per-feature Mermaid flowcharts: auth & registration, ingestion (VLM + OCR fallback), RAG chat with thinking stream, KG extraction & query, sandbox execution, KPI definition & evaluation, dashboard builder, settings & live model wiring, RBAC enforcement, end-to-end question flow |
+| [`diagrams/`](./diagrams/) | Anyone needing static images | 17 standalone **SVG** renders (light mode) of every flowchart in the three docs above, plus their `.mmd` sources, the render script, and a regeneration helper. Drop into Word, slides, runbooks, etc. |
 
-All diagrams use Mermaid, which renders natively on GitHub — no external tooling required to read them. To render locally, paste a fenced ` ```mermaid ` block into https://mermaid.live or use a VS Code extension.
+All diagrams use Mermaid, which renders natively on GitHub — no external tooling required to read them. To render locally, paste a fenced ` ```mermaid ` block into https://mermaid.live or use a VS Code extension. Pre-rendered light-mode SVGs are also committed under [`diagrams/`](./diagrams/).
 
 ## Future deliverables (P6+)
 

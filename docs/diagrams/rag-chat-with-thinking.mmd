@@ -1,0 +1,42 @@
+flowchart TD
+    Q[User submits message] --> SSE[GET /api/chat/stream<br/>fetch with Authorization]
+    SSE --> Auth[get_current_user]
+    Auth --> Member[verify workspace membership]
+    Member --> Run[run_rag async generator]
+
+    Run --> Classify[intent_mod.classify<br/>rule-based, 8 classes]
+    Classify --> Y1[yield thinking event<br/>'Intent detected: ...']
+    Y1 --> ResRag{rag_model configured?}
+    ResRag -- no --> NoteR[yield thinking<br/>'deterministic mode']
+    ResRag -- yes --> ResEmb{embedding_model<br/>configured?}
+    NoteR --> ResEmb
+    ResEmb -- yes --> Emb[aembed query]
+    ResEmb -- no --> NoteE[yield thinking<br/>'no vector search']
+
+    Emb --> EmbOk{ok?}
+    EmbOk -- no --> NoteE
+    EmbOk -- yes --> Y2[yield tool_call qdrant.hybrid_search]
+    Y2 --> Search[Qdrant hybrid_search<br/>workspace_id MANDATORY]
+    Search --> Y3[yield tool_result count]
+    NoteE --> Y3
+
+    Y3 --> Intent{intent}
+    Intent -- timeline --> KGtl[neo4j.timeline]
+    Intent -- summarize+>100 hits --> Agg[neo4j.aggregate_events_by_theme]
+    Intent -- otherwise --> Direct[use top-K chunks]
+    KGtl --> Compose
+    Agg --> Compose[compose context<br/>aggregated wins over raw]
+    Direct --> Compose
+
+    Compose --> ResRag2{rag_model?}
+    ResRag2 -- no --> Fallback[deterministic summary]
+    ResRag2 -- yes --> Stream[astream chat completion]
+    Stream --> StreamOk{ok?}
+    StreamOk -- no --> Fallback
+    StreamOk -- yes --> ChunkLoop[for each chunk → yield chunk]
+    Fallback --> ChunkLoop
+    ChunkLoop --> Done[yield done<br/>content + sources + meta]
+    Done --> Persist[INSERT user + assistant<br/>ChatMessage rows]
+    Persist --> EndSSE([close SSE])
+
+    EndSSE --> UI[Frontend renders<br/>bubbles + thinking panel]
