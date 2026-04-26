@@ -1,0 +1,22 @@
+flowchart TD
+    UI[User clicks Run] --> POST[POST /api/sandbox/run<br/>code + files + timeout + memory]
+    POST --> Auth[require_role editor/admin]
+    Auth --> Exec[sandbox.run async]
+    Exec --> Ping{docker.ping ok?}
+    Ping -- no --> R503[503 SandboxUnavailable]
+    Ping -- yes --> Create[containers.create]
+
+    Create --> Cfg[--cap-drop=ALL<br/>--no-new-privileges<br/>--network=none<br/>--read-only<br/>--tmpfs /sandbox /tmp<br/>--memory --cpus]
+    Cfg --> Tar[build tar archive<br/>user_code.py + bootstrap.py + inputs/]
+    Tar --> PutTar[container.put_archive /sandbox]
+    PutTar --> Start[container.start]
+    Start --> Wait[container.wait timeout=N]
+    Wait --> WaitOk{exited in time?}
+    WaitOk -- no --> Stop[container.stop force]
+    Stop --> Logs
+    WaitOk -- yes --> Logs[collect stdout/stderr]
+    Logs --> Get[get_archive /sandbox/out]
+    Get --> Extract[extract plots/<br/>extract artifacts/]
+    Extract --> Remove[container.remove force]
+    Remove --> Resp[200 SandboxRunResponse<br/>plots base64 + artifacts]
+    Resp --> Frontend[Render plots inline<br/>artifact download buttons]

@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant API as FastAPI
+    participant AU as Auth dep
+    participant WS as Workspace dep
+    participant DB as Postgres (RLS)
+    participant QD as Qdrant
+    participant LLM as LiteLLM
+    participant U as User
+    B->>API: GET /api/chat/stream?q=...&workspace_id=...
+    API->>AU: get_current_user
+    AU->>DB: SELECT user
+    DB-->>AU: user row
+    API->>WS: _resolve_workspace
+    WS->>DB: SELECT membership
+    DB-->>WS: ok
+    API->>API: run_rag(...)
+    API->>LLM: aembed(query)
+    LLM-->>API: vector
+    API->>QD: hybrid_search(workspace_id, vector)
+    QD-->>API: top-K hits
+    API->>LLM: astream(prompt + context)
+    LLM-->>API: chunk events
+    API-->>B: SSE: thinking → tool_call → chunk → done
+    API->>DB: persist user + assistant messages
+    B-->>U: render bubbles + thinking panel

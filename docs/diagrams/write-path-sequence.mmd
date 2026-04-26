@@ -1,0 +1,36 @@
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant API as FastAPI
+    participant DB as Postgres
+    participant S3 as MinIO
+    participant BG as BackgroundTask
+    participant P as Pipeline
+    participant VLM as VLM (LiteLLM)
+    participant OCR as Doctr OCR
+    participant LLM as Embedding
+    participant QD as Qdrant
+    B->>API: POST /api/upload (multipart)
+    API->>DB: insert Document(status=pending)
+    API->>S3: put_object(workspace/doc/filename)
+    API->>DB: insert AuditLog
+    API->>BG: schedule run_pipeline
+    API-->>B: 201 Created (DocumentOut)
+    BG->>P: ingest_bytes
+    P->>P: parsers.parse → ParsedUnits
+    loop per page/sheet
+        alt unit.kind == image
+            P->>VLM: extract_page (T=0.2)
+            VLM-->>P: PageExtraction or None
+            opt confidence < threshold
+                P->>OCR: ocr_image (fallback)
+                OCR-->>P: text + confidence
+            end
+        else unit.kind == text
+            P->>P: chunk_text
+        end
+    end
+    P->>LLM: aembed(chunks)
+    LLM-->>P: vectors
+    P->>QD: upsert(records w/ workspace_id)
+    P->>DB: update Document status=indexed, confidence=avg

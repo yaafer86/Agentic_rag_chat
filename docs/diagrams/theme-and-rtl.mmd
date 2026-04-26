@@ -1,0 +1,16 @@
+flowchart LR
+    Boot[main.tsx boot] --> Pref{localStorage.theme?}
+    Pref -- dark --> AddDark[document.documentElement.add 'dark']
+    Pref -- light --> RemoveDark[remove 'dark']
+    Pref -- unset --> Sys{prefers-color-scheme: dark?}
+    Sys -- yes --> AddDark
+    Sys -- no --> RemoveDark
+    AddDark --> Tailwind[Tailwind reads .dark var<br/>HSL tokens flip]
+    RemoveDark --> Tailwind
+
+    Msg[Each chat message text] --> Detect[lib/direction.detectDirection]
+    Detect --> Range{First strong char<br/>in RTL Unicode range?}
+    Range -- Hebrew/Arabic/Syriac/Thaana<br/>NKo/Samaritan/Mandaic/PF --> RTL[bubble dir='rtl']
+    Range -- otherwise --> LTR[bubble dir='ltr']
+    RTL --> Logical[CSS logical properties<br/>margin-inline-* etc.]
+    LTR --> Logical

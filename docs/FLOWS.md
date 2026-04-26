@@ -208,7 +208,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     Create[POST /api/kpi<br/>name+formula+filters+thresholds] --> Extract[_extract_variable_names]
-    Extract --> SafeEval[evaluate_formula<br/>with sample={var: 1}]
+    Extract --> SafeEval["evaluate_formula<br/>with sample={var: 1}"]
     SafeEval --> SyntaxOk{ok?}
     SyntaxOk -- no --> R400[400 invalid formula]
     SyntaxOk -- yes --> Insert[INSERT custom_kpis<br/>+ AuditLog]
@@ -243,7 +243,7 @@ flowchart LR
     Pick --> KPIs[Right pane:<br/>list KPIs + create form]
 
     KPIs --> Add{Click 'add to dashboard'}
-    Add --> AppendW[append widget<br/>{id, type, kpi_id, title}]
+    Add --> AppendW["append widget<br/>{id, type, kpi_id, title}"]
     AppendW --> Put[PUT /api/dashboards/:id<br/>updated layout]
     Put --> Render[invalidate query → re-render]
 
@@ -351,7 +351,7 @@ flowchart TD
     F --> G[run_rag yields events]
     G --> H[ThinkingStream panel<br/>updates per event]
     G --> I[Assistant bubble<br/>per-message RTL detection]
-    H --> J[Done event<br/>sources [S1] [S2] rendered]
+    H --> J["Done event<br/>sources S1, S2 rendered"]
     I --> J
     J --> K[Persist conversation]
     K --> L([User sees answer])

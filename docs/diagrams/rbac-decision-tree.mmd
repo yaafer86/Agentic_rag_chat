@@ -1,0 +1,25 @@
+flowchart TD
+    R[Request hits FastAPI] --> H{Has Authorization header?}
+    H -- no --> R401[401 missing header]
+    H -- yes --> J{Decode JWT}
+    J -- fail --> R401b[401 invalid token]
+    J -- ok --> T{type == access?}
+    T -- no --> R401c[401 wrong type]
+    T -- yes --> U[Load User by sub]
+    U --> A{is_active?}
+    A -- no --> R401d[401 user inactive]
+    A -- yes --> E{Endpoint requires<br/>global_admin?}
+    E -- yes --> GA{user.is_global_admin?}
+    GA -- no --> R403a[403 admin required]
+    GA -- yes --> OK1[Allowed]
+    E -- no --> WS{Endpoint scoped<br/>to workspace?}
+    WS -- no --> OK2[Allowed]
+    WS -- yes --> M{User in<br/>workspace_members<br/>OR global_admin?}
+    M -- no --> R403b[403 not a member]
+    M -- yes --> RR{Role check via<br/>require_role?}
+    RR -- fail --> R403c[403 insufficient role]
+    RR -- pass --> FA{Folder ACL<br/>required?}
+    FA -- no --> OK3[Allowed]
+    FA -- yes --> ACL{check_folder_acl<br/>matches user/role?}
+    ACL -- no --> R403d[403 folder ACL]
+    ACL -- yes --> OK4[Allowed]

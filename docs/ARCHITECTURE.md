@@ -235,7 +235,7 @@ flowchart LR
     C -- yes --> Use2[Use workspace pref]
     C -- no --> D{default_fallback<br/>passed by caller?}
     D -- yes --> Use3[Use default]
-    D -- no --> Err[Raise:<br/>"no &lt;kind&gt; configured"]
+    D -- no --> Err["Raise:<br/>no kind configured"]
     Use --> Litellm[litellm.acompletion<br/>fallbacks=workspace.fallback_chain]
     Use2 --> Litellm
     Use3 --> Litellm
