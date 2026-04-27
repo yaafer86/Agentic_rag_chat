@@ -1,7 +1,7 @@
 """Workspace CRUD, members, folders, ACL, model prefs."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
@@ -178,6 +178,7 @@ async def list_members(
 @router.delete(
     "/{workspace_id}/members/{user_id}",
     status_code=204,
+    response_class=Response,
     dependencies=[Depends(require_role(Role.WORKSPACE_ADMIN.value))],
 )
 async def remove_member(

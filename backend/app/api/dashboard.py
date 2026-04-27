@@ -1,7 +1,7 @@
 """Dashboard CRUD. Export is produced by the sandbox service on demand."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 
 from app.core.rbac import DB, CurrentUser, CurrentWorkspace, require_role
@@ -114,6 +114,7 @@ async def update_dashboard(
 @router.delete(
     "/{dashboard_id}",
     status_code=204,
+    response_class=Response,
     dependencies=[Depends(require_role(Role.WORKSPACE_ADMIN.value))],
 )
 async def delete_dashboard(

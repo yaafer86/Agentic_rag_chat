@@ -6,9 +6,19 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+# Some workspace fields legitimately start with `model_` (model_prefs,
+# model_override). Pydantic 2 reserves that prefix as a protected
+# namespace by default and warns on every import; silence it globally
+# for our schemas — none of these collide with BaseModel internals.
+_RELAX = ConfigDict(protected_namespaces=())
+
 
 class ORM(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, protected_namespaces=())
+
+
+class _Relaxed(BaseModel):
+    model_config = _RELAX
 
 
 # ---------- Auth ----------
@@ -64,7 +74,7 @@ class WorkspaceOut(ORM):
     created_at: datetime
 
 
-class ModelPrefs(BaseModel):
+class ModelPrefs(_Relaxed):
     rag_model: str | None = None
     vlm_model: str | None = None
     agent_model: str | None = None
@@ -119,7 +129,7 @@ class DocumentOut(ORM):
 # ---------- Chat ----------
 
 
-class ChatRequest(BaseModel):
+class ChatRequest(_Relaxed):
     workspace_id: str
     conversation_id: str | None = None
     message: str

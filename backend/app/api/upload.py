@@ -3,7 +3,17 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Response,
+    UploadFile,
+    status,
+)
 from sqlalchemy import select
 
 from app.core.rbac import DB, CurrentUser, CurrentWorkspace, require_role
@@ -162,6 +172,7 @@ async def list_documents(
 @router.delete(
     "/{document_id}",
     status_code=204,
+    response_class=Response,
     dependencies=[Depends(require_role(Role.WORKSPACE_ADMIN.value, Role.WORKSPACE_EDITOR.value))],
 )
 async def delete_document(
