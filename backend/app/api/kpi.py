@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 
 from app.core.rbac import DB, CurrentUser, CurrentWorkspace, require_role
@@ -74,6 +74,7 @@ async def list_kpis(ctx: CurrentWorkspace, db: DB) -> list[CustomKPI]:
 @router.delete(
     "/{kpi_id}",
     status_code=204,
+    response_class=Response,
     dependencies=[Depends(require_role(Role.WORKSPACE_ADMIN.value))],
 )
 async def delete_kpi(
